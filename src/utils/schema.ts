@@ -1,5 +1,4 @@
-import { ObjectId } from "mongoose";
-import { z } from "zod";
+import { type ObjectId } from "mongoose";
 
 export type SchemaBase = {
   _id: ObjectId;

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { SchemaBase } from "../../../utils/schema";
+import { type SchemaBase } from "../../../utils/schema";
 
 export const userRoles = ["admin", "user"] as const;
 
