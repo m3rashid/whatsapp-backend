@@ -1,14 +1,23 @@
+import { fileURLToPath } from 'node:url';
+import { resolve, dirname } from 'node:path';
+
 import run from '@rollup/plugin-run';
 import terser from '@rollup/plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
-import typescript from '@rollup/plugin-typescript';
+import sourcemaps from 'rollup-plugin-sourcemaps';
 import includePaths from 'rollup-plugin-includepaths';
+import rollupTypescript from '@rollup/plugin-typescript';
 
-const dev = process.env.ROLLUP_WATCH === 'true';
+const dev = process.env.NODE_ENV != "production";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const config = {
 	input: 'index.ts',
+	sourcemaps: true,
 	output: {
 		file: 'dist/index.js',
+		sourcemap: true,
+		name: 'app',
 	},
 	plugins: [
 		includePaths({
@@ -18,29 +27,27 @@ const config = {
 			extensions: ['.js', '.ts', '.d.ts', '.cjs'],
 		}),
 		commonjs({ extensions: ['.js', '.ts', '.cjs'] }),
-		typescript(),
+		rollupTypescript({
+			sourceMap: true,
+			tsconfig: resolve(__dirname, 'tsconfig.json'),
+		}),
+		sourcemaps(),
 		dev && run(),
 		!dev && terser(),
 	],
 	external: [
 		'zod',
 		'cors',
-		'http',
 		'dayjs',
-		'helmet',
-		'morgan',
 		'bcrypt',
 		'ioredis',
-		'winston',
 		'express',
 		'mongoose',
 		'socket.io',
-		'compression',
+		'node:http',
+		'pino-http',
 		'jsonwebtoken',
 		'dotenv/config',
-		'@faker-js/faker',
-		'shared',
-		'mongoose-paginate-v2',
 	],
 };
 

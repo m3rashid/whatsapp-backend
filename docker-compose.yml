@@ -7,6 +7,9 @@ services:
   database:
     image: mongo:latest
     restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: genos
+      MONGO_INITDB_ROOT_PASSWORD: genos
     ports:
       - "27017:27017"
     volumes:
@@ -16,6 +19,6 @@ services:
     image: redis:latest
     restart: always
     volumes:
-      - ./volumes/redisDb:/data
+      - ./volumes/redis:/data
     ports:
       - 6379:6379
