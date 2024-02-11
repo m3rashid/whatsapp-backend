@@ -6,7 +6,7 @@ const envSchema = z.object({
   MONGO_URI: z.string(),
   REDIS_URI: z.string(),
   CLIENT_URL: z.string(),
-  NODE_ENV: z.string().default("development"),
+  NODE_ENV: z.enum(["development", "production"]).default("development"),
   SERVER_PORT: z.string().default("4000"),
 });
 

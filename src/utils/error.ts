@@ -8,7 +8,7 @@ const globalErrorHandlerMiddleware = (
   res: Response,
   _: NextFunction
 ) => {
-  req.log.error(err);
+  console.log(err);
   return res.status(500).json({
     message:
       env.NODE_ENV === "production"
