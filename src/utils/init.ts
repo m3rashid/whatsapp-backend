@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Express } from "express";
+import { type Express } from "express";
 
 import env from "./env";
 

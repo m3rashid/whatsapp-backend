@@ -1,15 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Default",
+  "include": ["./src/**/*.ts"],
   "compilerOptions": {
     "composite": false,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "inlineSources": false,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "noUncheckedIndexedAccess": true,
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "noEmit": true,
     "sourceMap": true,
     "isolatedModules": true,
-    "moduleResolution": "node",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
@@ -17,8 +21,6 @@
     "strict": true,
     "target": "es2016",
     "outDir": "dist",
-    "typeRoots": ["./node_modules/@types", "./types"]
-  },
-  "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+    "typeRoots": ["./node_modules/@types", "./src/types"]
+  }
 }
