@@ -13,7 +13,7 @@ export type User = SchemaBase & {
 const userSchema = new mongoose.Schema<User>(
   {
     phone: { type: String, required: true },
-    username: { type: String, required: true },
+    username: { type: String },
     role: { type: String, enum: userRoles, default: "user" },
     deleted: { type: Boolean, default: false },
   },

@@ -8,6 +8,6 @@ const authRouter = Router();
 
 authRouter.post("/verify-otp", useRoute(verifyOtp));
 authRouter.post("/check-phone-number", useRoute(checkPhoneNumber));
-authRouter.get("/validate-login", checkAuth, useRoute(validateLogin));
+authRouter.post("/validate-login", checkAuth, useRoute(validateLogin));
 
 export default authRouter;

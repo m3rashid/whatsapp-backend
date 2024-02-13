@@ -36,7 +36,7 @@ export async function checkPhoneNumber(
 }
 
 const verifyOtpSchema = z
-  .object({ phone: z.string(), code: z.string().length(6) })
+  .object({ phone: z.string(), otp: z.string().length(6) })
   .strict();
 export async function verifyOtp(
   req: Request<any, any, z.infer<typeof verifyOtpSchema>>,
@@ -45,14 +45,14 @@ export async function verifyOtp(
   verifyOtpSchema.parse(req.body);
   const deleteOtp = await OtpModel.deleteOne({
     phone: req.body.phone,
-    code: req.body.code,
+    code: req.body.otp,
   });
 
   if (deleteOtp.deletedCount === 0) {
     return res.status(400).json({ message: "Invalid OTP Code" });
   }
 
-  let user = await UserModel.findOne({ phone: req });
+  let user = await UserModel.findOne({ phone: req.body.phone });
   if (!user) {
     const newUser = new UserModel({ phone: req.body.phone });
     user = await newUser.save();

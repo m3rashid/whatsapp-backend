@@ -25,18 +25,18 @@ export async function generateOtp(phone: string, maxRetries = 3) {
   let retryCount = 0;
   while (retryCount < maxRetries) {
     try {
-      const _otp = new OtpModel({
-        phone,
-        code: otpGenerator.generate(6, {
-          specialChars: false,
-          lowerCaseAlphabets: false,
-          upperCaseAlphabets: false,
-        }),
+      const code = otpGenerator.generate(6, {
+        specialChars: false,
+        lowerCaseAlphabets: false,
+        upperCaseAlphabets: false,
       });
+      console.log("========== CODE ==========", { code });
+      const _otp = new OtpModel({ phone, code: code });
       const otp = await _otp.save();
       return otp;
     } catch (err: any) {
       retryCount++;
+      console.log(err);
       console.log("OTP Already Exists, Regenerating...");
     }
   }
