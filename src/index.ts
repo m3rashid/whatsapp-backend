@@ -6,6 +6,7 @@ import mongoSanitize from "express-mongo-sanitize";
 
 import env from "./utils/env";
 import authRouter from "./modules/auth";
+import messageRouter from "./modules/message";
 import { SocketService } from "./utils/socket";
 import { authMiddleware } from "./middlewares/auth";
 import globalErrorHandlerMiddleware from "./utils/error";
@@ -27,7 +28,8 @@ app.use(mongoSanitize());
 app.use(authMiddleware);
 
 setupBasicRoutes(app);
-app.use(authRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/message", messageRouter);
 
 app.use(globalErrorHandlerMiddleware);
 
