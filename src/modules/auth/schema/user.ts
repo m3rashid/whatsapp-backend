@@ -5,36 +5,16 @@ import { type SchemaBase } from "../../../utils/schema";
 export const userRoles = ["admin", "user"] as const;
 
 export type User = SchemaBase & {
-  name: string;
-  email: string;
-  password: string;
-  role: (typeof userRoles)[number];
   phone: string;
+  username?: string;
+  role: (typeof userRoles)[number];
 };
 
 const userSchema = new mongoose.Schema<User>(
   {
-    name: {
-      type: String,
-      required: true,
-      minlength: 3,
-      maxlength: 255,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
-    password: { type: String, required: true },
-    role: {
-      type: String,
-      required: true,
-      enum: userRoles,
-      default: "user",
-    },
-    phone: {
-      type: String,
-      required: true,
-    },
+    phone: { type: String, required: true },
+    username: { type: String, required: true },
+    role: { type: String, enum: userRoles, default: "user" },
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true }

@@ -1,4 +1,9 @@
-import { type NextFunction, type Request, type Response } from "express";
+import {
+  type Handler,
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 
 import env from "./env";
 
@@ -18,3 +23,9 @@ const globalErrorHandlerMiddleware = (
 };
 
 export default globalErrorHandlerMiddleware;
+
+export function useRoute(handlerFunction: Handler) {
+  return function (req: Request, res: Response, next: NextFunction) {
+    Promise.resolve(handlerFunction(req, res, next)).catch(next);
+  };
+}

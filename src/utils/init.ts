@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { type Express } from "express";
 
 import env from "./env";
+import { setIdempotencyKeyValue } from "./idempotency";
 
 /**
  * @description Connects to the database
@@ -17,7 +18,11 @@ export async function initializeServer() {
  * @description Set up basic routes for the server
  */
 export function setupBasicRoutes(app: Express) {
-  app.get("/", (_, res) => res.send("Hello World"));
+  app.get("/", async (req, res) => {
+    const response = { code: 200, json: { message: "Welcome to the server" } };
+    await setIdempotencyKeyValue(req.idempotentKey, response);
+    return res.status(response.code).json(response.json);
+  });
 
   app.get("/health", (req, res) => {
     req.log.info("Health check");

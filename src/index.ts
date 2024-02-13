@@ -4,30 +4,29 @@ import express from "express";
 import pinoHttp from "pino-http";
 
 import env from "./utils/env";
+import authRouter from "./modules/auth";
 import { SocketService } from "./utils/socket";
+import { authMiddleware } from "./middlewares/auth";
 import globalErrorHandlerMiddleware from "./utils/error";
-import { IDEMPOTENCY_KEY_HEADER } from "./utils/constants";
 import { initializeServer, setupBasicRoutes } from "./utils/init";
+import { checkIdempotencyKeyMiddleware } from "./middlewares/idempotency";
 
 const app = express();
 const server = http.createServer(app);
 const socketService = new SocketService(server);
 
-app.use(cors({ credentials: true, origin: env.CLIENT_URL }));
 app.disable("x-powered-by");
-app.use(
-  pinoHttp({
-    genReqId: (req) => {
-      const reqId = req.headers[IDEMPOTENCY_KEY_HEADER];
-      if (!reqId) throw new Error("No idempotency key found");
-      return reqId;
-    },
-  })
-);
+app.use(cors({ credentials: true, origin: env.CLIENT_URL }));
+app.use(checkIdempotencyKeyMiddleware);
+
+app.use(pinoHttp({}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(authMiddleware);
 
 setupBasicRoutes(app);
+app.use(authRouter);
+
 app.use(globalErrorHandlerMiddleware);
 
 initializeServer()
