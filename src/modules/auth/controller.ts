@@ -11,8 +11,12 @@ import { z } from "zod";
 import type { Request, Response } from "express";
 
 import UserModel from "./schema/user";
-import { issueJWT, verifyJWT } from "../../utils/jwt";
+import { issueJWT } from "../../utils/jwt";
 import OtpModel, { generateOtp } from "./schema/otp";
+import {
+  type IdempotentResponse,
+  setIdempotencyKeyValue,
+} from "../../utils/idempotency";
 
 const checkPhoneNumberSchema = z.object({ phone: z.string() }).strict();
 export async function checkPhoneNumber(
@@ -61,21 +65,23 @@ export async function verifyOtp(
   });
 }
 
-export async function revalidateToken(req: Request, res: Response) {
-  const token = req.headers.authorization;
-  if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-  const { expired, payload, valid } = verifyJWT(token);
-  if (expired || !valid || !payload) {
+export async function validateLogin(req: Request, res: Response) {
+  if (!req.isAuthenticated || !req.userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const user = await UserModel.findById(payload.sub);
+  const user = await UserModel.findById(req.userId);
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  return res.status(200).json({
-    user,
-    message: "Token Revalidated",
-    token: issueJWT(user._id as any).token,
-  });
+  const cacheResponse: IdempotentResponse = {
+    code: 200,
+    json: {
+      user,
+      message: "Token Revalidated",
+      token: issueJWT(user._id as any).token,
+    },
+  };
+
+  await setIdempotencyKeyValue(req.idempotentKey, cacheResponse);
+  return res.status(cacheResponse.code).json(cacheResponse.json);
 }

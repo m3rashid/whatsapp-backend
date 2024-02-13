@@ -11,7 +11,6 @@ const envSchema = z.object({
   CLIENT_URL: z.string(),
   NODE_ENV: z.enum(["development", "production"]).default("development"),
   SERVER_PORT: z.string().default("4000"),
-  JWT_ACCESS_SECRET: z.string(),
 });
 
 export type ENV = z.infer<typeof envSchema>;

@@ -11,7 +11,7 @@ export const issueJWT = (userId: string) => {
 
   return {
     expires: expiresIn,
-    token: JWT.sign(payload, env.JWT_ACCESS_SECRET, {
+    token: JWT.sign(payload, env.JWT_SECRET, {
       expiresIn: expiresIn,
     }),
   };
@@ -21,14 +21,14 @@ export const verifyJWT = (token: string) => {
   try {
     const extractedToken = token.split(" ")[1];
     if (!extractedToken) throw new Error("Invalid Token");
-    const decoded = JWT.verify(extractedToken, env.JWT_ACCESS_SECRET);
+    const decoded = JWT.verify(extractedToken, env.JWT_SECRET);
     return {
       valid: true,
       expired: false,
       payload: decoded,
     };
   } catch (err: any) {
-    console.log(err);
+    console.log("error in verifying jwt", err);
     return {
       valid: false,
       payload: null,

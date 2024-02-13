@@ -4,6 +4,8 @@ import { verifyJWT } from "../utils/jwt";
 
 export function authMiddleware(req: Request, _: Response, next: NextFunction) {
   const token = req.headers.authorization;
+  console.log({ token });
+
   if (!token) {
     req.isAuthenticated = false;
     req.userId = undefined;
