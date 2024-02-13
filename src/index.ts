@@ -2,6 +2,7 @@ import cors from "cors";
 import http from "node:http";
 import express from "express";
 import pinoHttp from "pino-http";
+import mongoSanitize from "express-mongo-sanitize";
 
 import env from "./utils/env";
 import authRouter from "./modules/auth";
@@ -20,8 +21,9 @@ app.use(cors({ credentials: true, origin: env.CLIENT_URL }));
 app.use(checkIdempotencyKeyMiddleware);
 
 app.use(pinoHttp({}));
-app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(mongoSanitize());
 app.use(authMiddleware);
 
 setupBasicRoutes(app);

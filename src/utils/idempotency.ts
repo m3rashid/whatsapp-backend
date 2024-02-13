@@ -14,10 +14,19 @@ export async function setIdempotencyKeyValue(
       idempotentKey,
       JSON.stringify(response),
       "EX",
-      60 * 15 // 15 minutes
+      60 * 10 // 10 minutes
     );
   } catch (err: any) {
     console.log("Could not add to the redis cache.");
+    console.error(err);
+  }
+}
+
+export async function removeIdempotencyKeyValue(idempotentKey: string) {
+  try {
+    await idempotenceRedis.del(idempotentKey);
+  } catch (err: any) {
+    console.log("Could not remove from the redis cache.");
     console.error(err);
   }
 }
