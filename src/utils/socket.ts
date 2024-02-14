@@ -22,9 +22,12 @@ export class SocketService {
   private _io: SocketServer;
 
   constructor(server: Server) {
-    console.log("Init Socket Service...");
     this._io = new SocketServer(server, {
-      cors: { credentials: true, origin: env.CLIENT_URL },
+      cors: {
+        credentials: true,
+        origin: env.CLIENT_URL,
+        methods: ["GET", "POST"],
+      },
     });
     subscriber.subscribe(MESSAGES_EVENT_REDIS);
   }
@@ -35,21 +38,28 @@ export class SocketService {
 
   public initListeners() {
     const io = this.io;
-    console.log("Init Socket Listeners...");
-
-    io.on("connect", (socket) => {
-      console.log(`New Socket Connected`, socket.id);
+    io.on("connection", (socket) => {
+      console.log("New Socket Connected", socket.id);
       socket.on(
         socketEvents.MESSAGE,
-        async ({ message }: { message: string }) => {
-          console.log("New Message Rec.", message);
+        // async ({ message }: { message: string }) => {
+        async (params) => {
+          console.log(params);
+          console.log("New Message Rec.", params.message);
           // publish this message to redis
           await publisher.publish(
             MESSAGES_EVENT_REDIS,
-            JSON.stringify({ message })
+            JSON.stringify({ message: params.message })
           );
         }
       );
+    });
+
+    io.engine.on("connection_error", (err) => {
+      console.log(err.req); // the request object
+      console.log(err.code); // the error code, for example 1
+      console.log(err.message); // the error message, for example "Session ID unknown"
+      console.log(err.context); // some additional error context
     });
 
     subscriber.on(MESSAGES_EVENT_REDIS, async (channel, message) => {

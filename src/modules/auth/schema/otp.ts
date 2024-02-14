@@ -30,14 +30,19 @@ export async function generateOtp(phone: string, maxRetries = 3) {
         lowerCaseAlphabets: false,
         upperCaseAlphabets: false,
       });
-      console.log("========== CODE ==========", { code });
       const _otp = new OtpModel({ phone, code: code });
       const otp = await _otp.save();
       return otp;
     } catch (err: any) {
-      retryCount++;
       console.log(err);
-      console.log("OTP Already Exists, Regenerating...");
+      retryCount++;
+      if (err.code === 11000) {
+        // unique constraint failed, retry
+        console.log("OTP Already Exists, Regenerating...");
+      } else {
+        console.log("Error in generating OTP, not retrying");
+        return;
+      }
     }
   }
 }

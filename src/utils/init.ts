@@ -19,14 +19,10 @@ export async function initializeServer() {
  */
 export function setupBasicRoutes(app: Express) {
   app.get("/", async (req, res) => {
-    const response = { code: 200, json: { message: "Welcome to the server" } };
-    await setIdempotencyKeyValue(req.idempotentKey, response);
-    return res.status(response.code).json(response.json);
+    return res.status(200).json({ message: "Welcome to the server" });
   });
 
   app.get("/health", (req, res) => {
-    req.log.info("Health check");
-
     const healthcheck = {
       uptime: process.uptime(),
       responseTime: process.hrtime(),

@@ -30,7 +30,7 @@ export async function checkPhoneNumber(
   }
 
   // !TODO send otp code to user
-  req.log.info("OTP Generated", { otp: otp.code, phone: otp.phone });
+  console.log("OTP Generated", { otp: otp.code, phone: otp.phone });
 
   return res.status(200).json({ message: "OTP Sent" });
 }
@@ -73,15 +73,9 @@ export async function validateLogin(req: Request, res: Response) {
   const user = await UserModel.findById(req.userId);
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  const cacheResponse: IdempotentResponse = {
-    code: 200,
-    json: {
-      user,
-      message: "Token Revalidated",
-      token: issueJWT(user._id as any).token,
-    },
-  };
-
-  await setIdempotencyKeyValue(req.idempotentKey, cacheResponse);
-  return res.status(cacheResponse.code).json(cacheResponse.json);
+  return res.status(200).json({
+    user,
+    message: "Token Revalidated",
+    token: issueJWT(user._id as any).token,
+  });
 }
