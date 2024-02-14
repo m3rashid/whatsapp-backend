@@ -43,9 +43,8 @@ app.use(globalErrorHandlerMiddleware);
 
 initializeServer()
   .then(() => {
-    app.listen(env.SERVER_PORT, () => console.log("server is running"));
+    server.listen(env.SERVER_PORT, () => console.log("server is running"));
     socketService.initListeners();
-    socketService.io.use((socket, next) => {});
   })
   .catch((err) => {
     console.error("Error in initializing server");

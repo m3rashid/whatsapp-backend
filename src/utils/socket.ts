@@ -1,25 +1,36 @@
 import { type Server } from "node:http";
 import { Server as SocketServer } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
 
 import env from "./env";
-import { produceMessage } from "./kafka";
-import { publisher, subscriber } from "./redis";
-import { MESSAGES_EVENT_REDIS, socketEvents } from "./constants";
+import type { Message } from "../modules/message/schema/message";
+import { publisherRedisClient, subscriberRedisClient } from "./redis";
 
 export type ClientToServerSocketEvents = {
-  // ...
+  "new-message": { message: string; sender: string; receiver: string };
 };
 
 export type ServerToClientSocketEvents = {
-  // ...
+  message: Message;
 };
 
 export type InterServerSocketEvents = {
   // ...
 };
 
+export type SocketData = {
+  // ...
+};
+
+export type IO = SocketServer<
+  ClientToServerSocketEvents,
+  ServerToClientSocketEvents,
+  InterServerSocketEvents,
+  SocketData
+>;
+
 export class SocketService {
-  private _io: SocketServer;
+  private _io: IO;
 
   constructor(server: Server) {
     this._io = new SocketServer(server, {
@@ -29,7 +40,6 @@ export class SocketService {
         methods: ["GET", "POST"],
       },
     });
-    subscriber.subscribe(MESSAGES_EVENT_REDIS);
   }
 
   get io() {
@@ -38,21 +48,23 @@ export class SocketService {
 
   public initListeners() {
     const io = this.io;
+    io.adapter(createAdapter(publisherRedisClient, subscriberRedisClient));
+
     io.on("connection", (socket) => {
       console.log("New Socket Connected", socket.id);
-      socket.on(
-        socketEvents.MESSAGE,
-        // async ({ message }: { message: string }) => {
-        async (params) => {
-          console.log(params);
-          console.log("New Message Rec.", params.message);
-          // publish this message to redis
-          await publisher.publish(
-            MESSAGES_EVENT_REDIS,
-            JSON.stringify({ message: params.message })
-          );
-        }
-      );
+      // socket.on(
+      //   socketEvents.MESSAGE,
+      //   // async ({ message }: { message: string }) => {
+      //   async (params) => {
+      //     console.log(params);
+      //     console.log("New Message Rec.", params.message);
+      //     // publish this message to redis
+      //     await publisher.publish(
+      //       MESSAGES_EVENT_REDIS,
+      //       JSON.stringify({ message: params.message })
+      //     );
+      //   }
+      // );
     });
 
     io.engine.on("connection_error", (err) => {
@@ -62,13 +74,13 @@ export class SocketService {
       console.log(err.context); // some additional error context
     });
 
-    subscriber.on(MESSAGES_EVENT_REDIS, async (channel, message) => {
-      if (channel === MESSAGES_EVENT_REDIS) {
-        console.log("new message from redis", message);
-        io.emit("message", message);
-        await produceMessage(message);
-        console.log("Message Produced to Kafka Broker");
-      }
-    });
+    // subscriberRedisClient.on(MESSAGES_EVENT_REDIS, async (channel, message) => {
+    //   if (channel === MESSAGES_EVENT_REDIS) {
+    //     console.log("new message from redis", message);
+    //     // io.emit("message", message);
+    //     // await produceMessage(message);
+    //     console.log("Message Produced to Kafka Broker");
+    //   }
+    // });
   }
 }

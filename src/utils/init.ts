@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { type Express } from "express";
 
 import env from "./env";
-import { setIdempotencyKeyValue } from "./idempotency";
 
 /**
  * @description Connects to the database
@@ -10,15 +9,14 @@ import { setIdempotencyKeyValue } from "./idempotency";
  */
 export async function initializeServer() {
   await mongoose.connect(env.MONGO_URI);
-  console.log("Connected to the database");
-  // !TODO
+  console.log("Connected to the database, publisher and subscriber redis");
 }
 
 /**
  * @description Set up basic routes for the server
  */
 export function setupBasicRoutes(app: Express) {
-  app.get("/", async (req, res) => {
+  app.get("/", async (_, res) => {
     return res.status(200).json({ message: "Welcome to the server" });
   });
 
