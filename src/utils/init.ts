@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { type Express } from "express";
 
 import env from "./env";
+import type { CorsOptions } from "cors";
 
 /**
  * @description Connects to the database
@@ -36,3 +37,8 @@ export function setupBasicRoutes(app: Express) {
     }
   });
 }
+
+export const corsOptions: CorsOptions = {
+  credentials: true,
+  origin: env.CLIENT_URL,
+};
